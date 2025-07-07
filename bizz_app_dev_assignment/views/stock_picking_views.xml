@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_picking_form_inherit_sale_tags" model="ir.ui.view">
+        <field name="name">stock.picking.form.inherit.sale.tags</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="sale_tag_ids" widget="many2many_tags" invisible="not sale_tag_ids"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_picking_search_delivery_tags" model="ir.ui.view">
+        <field name="name">stock.picking.search.delivery.tags</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_internal_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search//field[@name='lot_id']" position="after">
+                <field name="sale_tag_ids" filter_domain="[('sale_tag_ids','ilike', self)]" string="Sale Tags"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="vpicktree_view_tree_inherit_sale_tags" model="ir.ui.view">
+        <field name="name">stock.picking.delivery.tree.inherit.tags</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.vpicktree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="sale_tag_ids" widget="many2many_tags" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
