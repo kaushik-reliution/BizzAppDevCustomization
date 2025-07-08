@@ -9,8 +9,8 @@ class SaleOrder(models.Model):
     def _action_confirm(self):
         """
         Copied the tags from the sale order to delivery order.
-        Override: Split the purchase order based on different category of product and if found
-        different vendor use default behaviour
+        Split purchase orders by product category; 
+        default behavior is used if vendors differ within a category.
         """
         res = super()._action_confirm()
         purchase_order_line = self.env['purchase.order.line']
