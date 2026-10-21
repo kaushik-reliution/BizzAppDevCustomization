@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="pos_restore_receipt_screen.ReceiptScreen">
+        <div class="receipt-screen screen h-100">
+            <div class="screen-content d-flex flex-column h-100">
+                <div class="default-view d-flex flex-lg-row flex-column overflow-hidden flex-grow-1">
+                    <!-- Left Side Panel (Actions & Status) -->
+                    <div class="actions d-flex flex-column justify-content-between border-end p-4">
+                        <div class="o_payment_successful d-flex flex-column w-100">
+                            <!-- Green Payment Successful Card -->
+                            <div class="payment-status-card d-flex flex-column align-items-center">
+                                <i class="fa fa-check-circle"/>
+                                <span class="status-title">
+                                    <t t-if="this.currentOrder &amp;&amp; this.currentOrder.isRefund">Refund Initiated</t>
+                                    <t t-else="">Payment Successful</t>
+                                </span>
+                                <div class="status-amount">
+                                    <span t-out="this.orderAmountPlusTip" />
+                                    <span t-if="this.currentOrder &amp;&amp; this.currentOrder.nb_print === 0" class="edit-order-payment badge" role="button" t-on-click="() => this.pos.orderDetails(this.currentOrder)">Edit Payment</span>
+                                </div>
+                            </div>
+
+                            <!-- Buttons & Input Fields -->
+                            <div class="receipt-options d-flex flex-column gap-3">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-print w-100 btn-lg" t-on-click="() => this.doFullPrint.call()">
+                                        <i t-attf-class="fa {{this.doFullPrint?.status === 'loading' ? 'fa-spin fa-circle-o-notch' : 'fa-print'}} me-2" />Print Full Receipt
+                                    </button>
+                                    <button t-if="this.pos.config.basic_receipt" class="btn btn-print w-100 btn-lg" t-on-click="() => this.doBasicPrint.call()">
+                                        <i t-attf-class="fa {{this.doBasicPrint?.status === 'loading' ? 'fa-spin fa-circle-o-notch' : 'fa-print'}} me-2" />Print Basic Receipt
+                                    </button>
+                                </div>
+
+                                <!-- Email Input Row -->
+                                <div class="input-group-custom">
+                                    <input type="email" class="form-control form-control-lg" placeholder="e.g. john.doe@mail.com" t-model.proxy="this.state.email" />
+                                    <button class="btn btn-send btn-lg" t-att-disabled="!this.isValidEmail" t-on-click="() => this.actionSendReceiptOnEmail()">
+                                        <i t-attf-class="fa {{this.sendReceipt?.status === 'loading' &amp;&amp; this.sendReceipt?.lastArgs?.[0]?.name === 'Email' ? 'fa-spin fa-circle-o-notch' : 'fa-paper-plane'}}" />
+                                    </button>
+                                </div>
+
+                                <!-- Phone / WhatsApp / SMS Input Row -->
+                                <div t-if="this.showPhoneInput()" class="input-group-custom">
+                                    <input type="text" class="form-control form-control-lg" placeholder="e.g. 0123456789" t-model.proxy="this.state.phone" />
+                                    <button class="btn btn-send btn-lg" t-on-click="() => this.actionSendReceiptOnPhone()">
+                                        <i t-attf-class="fa {{this.pos.config.module_pos_sms ? 'fa-mobile' : 'fa-whatsapp'}}" />
+                                    </button>
+                                </div>
+
+                                <!-- Status Notice -->
+                                <div class="notice text-center mt-2">
+                                    <t t-set="usedMethod" t-value="this.sendReceipt?.lastArgs?.[0]?.name" />
+                                    <div t-if="this.sendReceipt?.status === 'loading'" class="text-info">Sending <t t-out="usedMethod"/> in progress</div>
+                                    <div t-if="this.sendReceipt?.status === 'success'" class="text-success fw-bold">
+                                        <t t-if="this.currentOrder &amp;&amp; this.currentOrder.is_invoiced">Receipt and invoice sent successfully</t>
+                                        <t t-else="">Receipt sent successfully</t>
+                                    </div>
+                                    <div t-if="this.sendReceipt?.status === 'error'" class="text-danger">Sending <t t-out="usedMethod"/> failed. Please try again</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Action Button (Continue for split bill, or New Order) -->
+                        <div class="validation-buttons w-100 mt-auto pt-3">
+                            <button t-if="this.isContinueSplitting()" class="btn btn-new-order btn-lg py-3" t-on-click="() => this.continueSplitting()" name="resume">
+                                <i class="fa fa-chevron-right me-1" />Continue Splitting
+                            </button>
+                            <button t-else="" class="btn btn-new-order btn-lg py-3" t-on-click="() => this.pos.orderDone(this.currentOrder)" name="done">
+                                New Order
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right Side Panel (Receipt Paper) -->
+                    <div class="pos-receipt-container flex-grow-1 overflow-y-auto d-flex justify-content-center p-3">
+                        <div class="receipt-paper-wrapper bg-white shadow-sm p-4 rounded">
+                            <div t-ref="this.receiptContainerRef" class="pos-receipt-render" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>
